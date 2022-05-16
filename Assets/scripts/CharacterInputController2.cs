@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
-
+using System.Collections;
 public class CharacterInputController2 : MonoBehaviour
 {
-
+	public GameObject player;
+	
     static int s_DeadHash = Animator.StringToHash ("Dead");
 	static int s_RunStartHash = Animator.StringToHash("runStart");
 	static int s_MovingHash = Animator.StringToHash("Moving");
@@ -54,20 +55,26 @@ public class CharacterInputController2 : MonoBehaviour
 
     protected int m_CurrentLane = k_StartingLane;
     protected Vector3 m_TargetPosition = Vector3.zero;
+	Vector3 curlane = new Vector3();
+	//protected readonly Vector3 k_StartingPosition = Vector3.forward * 2f;
 
-    protected readonly Vector3 k_StartingPosition = Vector3.forward * 2f;
-
-    protected const int k_StartingLane = 1;
+	protected const int k_StartingLane = 1;
     protected const float k_GroundingSpeed = 80f;
     protected const float k_ShadowRaycastDistance = 100f;
     protected const float k_ShadowGroundOffset = 0.01f;
-
-    protected void Awake ()
+	public SwipeDetector sd;
+	protected void Awake ()
     {
+		curlane.y = 1;
+		m_TargetPosition.y = 1;
+		sd.upaction = inputup;
+		sd.downaction = inputdown;
+		sd.leftaction = inputleft;
+		sd.rightaction = inputright;
 		blobShadow.transform.position = Vector3.zero;
 		m_Sliding = false;
         m_SlideStart = 0.0f;
-	    m_IsRunning = true;  transform.position =  Vector3.zero;
+	    m_IsRunning = true; // transform.position = m_TargetPosition;
 
 		m_CurrentLane = k_StartingLane;
 		
@@ -86,13 +93,13 @@ m_IsRunning = false;
         }
 
     }
-	Vector3 curlane= new Vector3();
+	
     private void FixedUpdate()
     {
 		scoretext.text ="Score: " + curScore.ToString();
 		curlane.y = cur_jumpheight;
 		Debug.Log("curlane y : " + curlane.y + m_Grounding + m_Jumping);
-		this.transform.position=Vector3.MoveTowards(this.transform.position, curlane, laneChangeSpeed*Time.deltaTime);
+		player.transform.position=Vector3.MoveTowards(player.transform.position, curlane, laneChangeSpeed*Time.deltaTime);
 		//this.transform.Translate(curlane, laneChangeSpeed*Time.deltaTime);
 	}
     // Cheating functions, use for testing
@@ -154,6 +161,33 @@ m_IsRunning = false;
 			m_Audio.PlayOneShot(powerUpUseSound);
 		}
 	}
+    private void inputup()
+    {
+		if (!m_Jumping)
+			Jump();
+
+	}
+	private void inputdown()
+	{
+		if (!m_Jumping)
+			if (!m_Sliding)
+				Slide();
+
+	}
+	private void inputleft()
+	{
+		if (!m_Jumping)
+			ChangeLane(-1);
+
+	}
+	private void inputright()
+	{
+		if (!m_Jumping)
+			ChangeLane(1);
+
+	}
+
+
 	protected void Update ()
     {
 
@@ -218,7 +252,7 @@ m_IsRunning = false;
 		}
 		if (m_Grounding)
         {
-			if (this.transform.position.y < groundzero+0.1f)
+			if (player.transform.position.y < groundzero+0.1f)
 						{StopJumping();
 					
 						}	
@@ -273,7 +307,7 @@ m_IsRunning = false;
 		    if (m_Jumping)
 		        StopJumping();
 
-			this.transform.rotation = Quaternion.AngleAxis(45, Vector3.right);
+			player.transform.rotation = Quaternion.AngleAxis(45, Vector3.right);
 			float animSpeed = 1/ speed;
 			animator.SetFloat(s_JumpingSpeedHash, animSpeed);
 			animator.SetBool(s_SlidingHash, true);
@@ -286,7 +320,7 @@ m_IsRunning = false;
 	{
 		if (m_Sliding)
 		{
-			this.transform.rotation = Quaternion.AngleAxis(0, Vector3.right);
+			player.transform.rotation = Quaternion.AngleAxis(0, Vector3.right);
 			animator.SetBool(s_SlidingHash, false);
 			m_Sliding = false;
 			cur_slide_length = 0;
