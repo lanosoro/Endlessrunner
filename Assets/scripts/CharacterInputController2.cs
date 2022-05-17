@@ -65,13 +65,14 @@ public class CharacterInputController2 : MonoBehaviour
 	public SwipeDetector sd;
 	protected void Awake ()
     {
-		curlane.y = 1;
-		m_TargetPosition.y = 1;
+		curlane= player.transform.position;
+		//m_TargetPosition.y = 1;
 		sd.upaction = inputup;
 		sd.downaction = inputdown;
 		sd.leftaction = inputleft;
 		sd.rightaction = inputright;
-		blobShadow.transform.position = Vector3.zero;
+
+		blobShadow.transform.position = new Vector3(curlane.x, groundzero + k_ShadowGroundOffset, curlane.z);
 		m_Sliding = false;
         m_SlideStart = 0.0f;
 	    m_IsRunning = true; // transform.position = m_TargetPosition;
@@ -98,7 +99,7 @@ m_IsRunning = false;
     {
 		scoretext.text ="Score: " + curScore.ToString();
 		curlane.y = cur_jumpheight;
-		Debug.Log("curlane y : " + curlane.y + m_Grounding + m_Jumping);
+		//Debug.Log("curlane y : " + curlane.y + m_Grounding + m_Jumping);
 		player.transform.position=Vector3.MoveTowards(player.transform.position, curlane, laneChangeSpeed*Time.deltaTime);
 		//this.transform.Translate(curlane, laneChangeSpeed*Time.deltaTime);
 	}
@@ -143,7 +144,7 @@ m_IsRunning = false;
             animator.SetBool(s_MovingHash, false);
         }
     }
-
+	//collisions
 	private void OnTriggerEnter(Collider other)
 	{
 		if (!m_Sliding)
@@ -152,13 +153,15 @@ m_IsRunning = false;
 			if (other.gameObject.name.Contains("Pickup"))
             {
 				curScore += 10;
-            }
+					m_Audio.PlayOneShot(powerUpUseSound);
+				}
 			if (other.gameObject.name.Contains("Cube"))
 			{
-				curScore += 50;
-			}
+				curScore -= 50;
+					m_Audio.PlayOneShot(jumpSound);
+				}
 			other.gameObject.SetActive(false);
-			m_Audio.PlayOneShot(powerUpUseSound);
+		
 		}
 	}
     private void inputup()
