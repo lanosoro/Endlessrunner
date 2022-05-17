@@ -65,6 +65,7 @@ public class CharacterInputController2 : MonoBehaviour
 	public SwipeDetector sd;
 	protected void Awake ()
     {
+		Application.targetFrameRate = 120;
 		curlane= player.transform.position;
 		//m_TargetPosition.y = 1;
 		sd.upaction = inputup;
