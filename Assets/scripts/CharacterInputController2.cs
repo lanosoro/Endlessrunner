@@ -22,7 +22,7 @@ public class CharacterInputController2 : MonoBehaviour
 	public float groundzero = 0.0f;
 	public TMPro.TMP_Text scoretext;
 	private int curScore = 0;
-
+	public EndlessRunner_UnityPool master;
 
 	public bool isJumping { get { return m_Jumping; } }
 	public bool isSliding { get { return m_Sliding; } }
@@ -93,7 +93,8 @@ m_IsRunning = false;
             animator.SetBool(s_MovingHash, true);
 			m_IsRunning = true;
         }
-
+		orgspeed = master.speed;
+		
     }
 	
     private void FixedUpdate()
@@ -146,6 +147,10 @@ m_IsRunning = false;
         }
     }
 	//collisions
+	public int slowdownspeed = 15;
+	bool _slow = false;
+	int _slow_timer = 0;
+	public int slowtime = 20;
 	private void OnTriggerEnter(Collider other)
 	{
 		if (!m_Sliding)
@@ -159,6 +164,9 @@ m_IsRunning = false;
 			if (other.gameObject.name.Contains("Cube"))
 			{
 				curScore -= 50;
+					master.speed = slowdownspeed;
+					_slow = true;
+					_slow_timer = slowtime;
 					m_Audio.PlayOneShot(jumpSound);
 				}
 			other.gameObject.SetActive(false);
@@ -191,13 +199,21 @@ m_IsRunning = false;
 
 	}
 
-
+	int orgspeed;
 	protected void Update ()
     {
 
         // Use key input in editor or standalone
         // disabled if it's tutorial and not thecurrent right tutorial level (see func TutorialMoveCheck)
-
+		if (_slow)
+        {
+			_slow_timer--;
+			if (_slow_timer < 0)
+            {
+				_slow = false;
+				master.speed = orgspeed;
+            }
+        }
         if (Input.GetKeyDown(KeyCode.LeftArrow) )
         {
 			if (!m_Jumping)

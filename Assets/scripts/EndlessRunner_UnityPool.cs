@@ -168,10 +168,12 @@ public class EndlessRunner_UnityPool : MonoBehaviour
     }
 
     //this one simply spawns 1 at the end of the sequence using the current data. 
+  
     public  void spawnnextsegment()
     {
        
         var g = spawnnewsegement(levelorder[current_order], segment_length*seg_count);
+       
         orderplus();
     }
     //increment and wrap
@@ -187,7 +189,7 @@ public class EndlessRunner_UnityPool : MonoBehaviour
 }
 
 //This is the script we put on the level segement to allow it to control the parts
-class roadtile_UP : MonoBehaviour
+public class roadtile_UP : MonoBehaviour
 {
 
     public EndlessRunner_UnityPool master;
@@ -218,6 +220,7 @@ class roadtile_UP : MonoBehaviour
                 if (_obj > -1)//is there a object segment and if so we release it from the pool
                     master.object_Pools[_obj].Release(_child);
                 master.spawnnextsegment(); //send command to get next part
+             
                 setactive = false; //this goes inactive
                 master.level_Pools[id].Release(this.gameObject); //we release the level segment from the pool
             }
