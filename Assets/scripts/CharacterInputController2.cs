@@ -63,8 +63,10 @@ public class CharacterInputController2 : MonoBehaviour
     protected const float k_ShadowRaycastDistance = 100f;
     protected const float k_ShadowGroundOffset = 0.01f;
 	public SwipeDetector sd;
+	int orgspeed = 0;
 	protected void Awake ()
     {
+		orgspeed = master.speed;
 		Application.targetFrameRate = 120;
 		curlane= player.transform.position;
 		//m_TargetPosition.y = 1;
@@ -93,7 +95,7 @@ m_IsRunning = false;
             animator.SetBool(s_MovingHash, true);
 			m_IsRunning = true;
         }
-		orgspeed = master.speed;
+	
 		
     }
 	
@@ -199,7 +201,7 @@ m_IsRunning = false;
 
 	}
 
-	int orgspeed;
+	
 	protected void Update ()
     {
 
@@ -211,7 +213,7 @@ m_IsRunning = false;
 			if (_slow_timer < 0)
             {
 				_slow = false;
-				master.speed = orgspeed;
+				master.speed = orgspeed ;
             }
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow) )
