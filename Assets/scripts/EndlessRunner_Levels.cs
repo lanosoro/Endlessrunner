@@ -52,7 +52,7 @@ public class EndlessRunner_Levels : MonoBehaviour
     public int speed = 50; //speed of trackmovement globally controls all segment movement. 
    // public bool levelclear = false;
     [NonReorderable]
-    public levels[] levelsmaster;  //class at bottom holding int int level id and object id
+    public List<levels> levelsmaster;  //class at bottom holding int int level id and object id
     public int levelspeed =0;
     private bool ready = false;  //make sure stuff is ready before we start internal 
     private int current_order = 0; //which levelorder index are we using, use length of it to trigger cycle start over at 0
@@ -96,6 +96,10 @@ public class EndlessRunner_Levels : MonoBehaviour
            
             object_type++;
         }
+        //program add level 4
+        if (levelsmaster.Count < 4)
+            levelsmaster.Add(levelsmaster[levelsmaster.Count - 1]); //clone the last one in the list to add a new one. 
+
 
 
     }
@@ -230,7 +234,7 @@ public class EndlessRunner_Levels : MonoBehaviour
             currentlevel++;
             levelspeed = levelsmaster[startinglevel].speed;
             speed = levelspeed;
-            if (currentlevel > levelsmaster.Length - 1)
+            if (currentlevel > levelsmaster.Count - 1)
             {
                 currentlevel = 0;
                // levelclear = true;
