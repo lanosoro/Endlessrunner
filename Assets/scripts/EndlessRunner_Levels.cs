@@ -45,6 +45,7 @@ public class EndlessRunner_Levels : MonoBehaviour
    // [SerializeField]
   //  public int seg_count = 6; //how many to make in front of player
     public Transform contentholder; //where we spawn level segments
+    public Transform dynamic;
     public TMPro.TMP_Text levelname;
     public GameObject[] LevelSegments; //prefabs of level segments
     public GameObject[] ObjectSegments; //prefabs of object segments
@@ -65,7 +66,7 @@ public class EndlessRunner_Levels : MonoBehaviour
     public int maxPoolSize = 10;
     public List<IObjectPool<GameObject>> level_Pools;
     public List<IObjectPool<GameObject>> object_Pools;
-    private int type = 0; //0 = level pool 1 = object pool, I share the same pooling system with multiple types
+    public int pooltype = 0; //0 = level pool 1 = object pool, I share the same pooling system with multiple types
     private int level_type = 0; //which prefab to use
     private int object_type = 0;//which prefab to use
   
@@ -78,7 +79,7 @@ public class EndlessRunner_Levels : MonoBehaviour
         currentlevel = startinglevel;
         speed = levelsmaster[startinglevel].speed;
         //level seg type = 0, loading the prefabs into the pools. 
-        type = 0;
+        pooltype = 0;
         foreach (var g in LevelSegments)
         {
             //add the road tile script for movement of the world
@@ -89,7 +90,7 @@ public class EndlessRunner_Levels : MonoBehaviour
             level_type++;
         }
         //object seg type = 0, loading the prefabs into the pools. 
-        type = 1;
+        pooltype = 1;
         foreach (var g in ObjectSegments)
         { 
             object_Pools.Add(new ObjectPool<GameObject>(CreatePooledItem, OnTakeFromPool, OnReturnedToPool, OnDestroyPoolObject, collectionChecks, 10, maxPoolSize));
@@ -136,7 +137,7 @@ public class EndlessRunner_Levels : MonoBehaviour
     {
 
       
-        if (type == 0)           
+        if (pooltype == 0)           
           return   Instantiate(LevelSegments[level_type], contentholder, false);
         else 
           return  Instantiate(ObjectSegments[object_type], contentholder, false);
@@ -148,6 +149,8 @@ public class EndlessRunner_Levels : MonoBehaviour
     {
         activepooled--;
         system.SetActive(false);
+        if (pooltype == 1)
+        system.transform.parent = dynamic;
     }
 
     // Called when an item is taken from the pool using Get
@@ -169,7 +172,7 @@ public class EndlessRunner_Levels : MonoBehaviour
      GameObject spawnnewsegement(levelsegment_levels ls, float dis)
     {
         //spawn the level
-        type = 0;
+        pooltype = 0;
         //validate we have not hit the end of the prefabs
         if (ls.levelseg >= LevelSegments.Length)
             ls.levelseg = 0;
@@ -186,7 +189,7 @@ public class EndlessRunner_Levels : MonoBehaviour
         {
             
             //object segement
-            type = 1;
+            pooltype = 1;
             //validate
             if (ls.objseg >= ObjectSegments.Length)
                 ls.objseg = 0;
@@ -264,13 +267,13 @@ public class roadtile_Levels : MonoBehaviour
     private int id = 0;
     private int _obj;
     GameObject _child;
-    public void setspeed(int currentorder, int obj, GameObject child)
+    public void setspeed(int currentorder, int pool_id, GameObject child)
     {
         // Debug.Log("z pos at start " + this.transform.localPosition.z.ToString());
 
         id = currentorder;
         setactive = true;
-        _obj = obj;
+        _obj = pool_id;
         _child = child;
     }
     private void Update()
@@ -282,11 +285,12 @@ public class roadtile_Levels : MonoBehaviour
             //out of bounds
             if (this.transform.localPosition.z < 0.2f )
             {
+                master.pooltype = 1;
                 // Debug.Log("z pos at exit "+ this.transform.localPosition.z.ToString()); //this will slow it down use if needed but don't forget to comment out after. 
                 if (_obj > -1)//is there a object segment and if so we release it from the pool
                     master.object_Pools[_obj].Release(_child);
                 master.spawnnextsegment(); //send command to get next part
-             
+                master.pooltype = 0;
                 setactive = false; //this goes inactive
                 master.level_Pools[id].Release(this.gameObject); //we release the level segment from the pool
             }
