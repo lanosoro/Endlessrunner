@@ -211,7 +211,7 @@ m_IsRunning = false;
 			if (_slow_timer < 0)
             {
 				_slow = false;
-				master.speed = master.levelspeed;
+				master.speed = master.levelsmaster[master.currentlevel].speed;
             }
         }
         if (Input.GetKeyDown(KeyCode.LeftArrow) )

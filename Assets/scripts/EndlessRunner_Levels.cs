@@ -33,8 +33,8 @@ public class levels
     [SerializeField]
     public level_type levtype;
   
-    [SerializeField]
-    public int time = -10; //updates ++, number of frames played
+    //[SerializeField]
+    //public int time = -10; //updates ++, number of frames played
     [SerializeField]
     public int speed = 30; //updates ++, number of frames played
 
@@ -53,12 +53,12 @@ public class EndlessRunner_Levels : MonoBehaviour
    // public bool levelclear = false;
     [NonReorderable]
     public List<levels> levelsmaster;  //class at bottom holding int int level id and object id
-    public int levelspeed =0;
+    //public int levelspeed =0;
     private bool ready = false;  //make sure stuff is ready before we start internal 
     private int current_order = 0; //which levelorder index are we using, use length of it to trigger cycle start over at 0
     //levels
     public int startinglevel=0;
-    private int currentlevel=0;
+    public int currentlevel=0;
     private int currentsegmentlength=0;
     //unity pooling
     public bool collectionChecks = true;
@@ -76,7 +76,7 @@ public class EndlessRunner_Levels : MonoBehaviour
         level_Pools = new List<IObjectPool<GameObject>>();
         object_Pools = new List<IObjectPool<GameObject>>();
         currentlevel = startinglevel;
-        levelspeed = levelsmaster[startinglevel].speed;
+        speed = levelsmaster[startinglevel].speed;
         //level seg type = 0, loading the prefabs into the pools. 
         type = 0;
         foreach (var g in LevelSegments)
@@ -107,20 +107,22 @@ public class EndlessRunner_Levels : MonoBehaviour
     private void FixedUpdate()
     {
 
-        levelsmaster[currentlevel].time++;//we increment time
-        timetext.text = "Time: " + levelsmaster[currentlevel].time.ToString();
+        //levelsmaster[currentlevel].time++;//we increment time
+        //timetext.text = "Time: " + levelsmaster[currentlevel].time.ToString();
         
         if (!ready) //starts off
-            if (autostart & levelsmaster[currentlevel].time > -1) //time == 0 and we want to autostart
+            if (autostart)// & levelsmaster[currentlevel].time > -1) //time == 0 and we want to autostart
             {
                 for (int x = 0; x < levelsmaster[currentlevel].Segments.Count; x++) //for each active segement
                 {
                     
                     currentsegmentlength += levelsmaster[currentlevel].Segments[current_order].segment_length;
                     spawnnewsegement(levelsmaster[currentlevel].Segments[current_order], currentsegmentlength); //create a new active segement for both level and object
-                    orderplus(); //increment the current_order but check to see if we need to loop it back to 0
+                    //increment the current_order but check to see if we need to loop it back to 0
+                    if (x < levelsmaster[currentlevel].Segments.Count-1)
+                        orderplus();
                 }
-
+               
 
                 ready = true; // now it is true we will not repeat this step. 
             }
@@ -215,7 +217,25 @@ public class EndlessRunner_Levels : MonoBehaviour
   
     public  void spawnnextsegment()
     {
-        currentsegmentlength += levelsmaster[currentlevel].Segments[current_order].segment_length;
+        if (current_order >= levelsmaster[currentlevel].Segments.Count)
+        {
+            Debug.Log("Level up");
+            current_order = 0;
+
+
+
+            currentlevel++;
+           
+            if (currentlevel > levelsmaster.Count - 1)
+            {
+                currentlevel = 0;
+                // levelclear = true;
+                //currentsegmentlength = 0;
+            }
+            speed = levelsmaster[currentlevel].speed;
+            levelname.text = levelsmaster[currentlevel].LevelName;
+        }
+        //currentsegmentlength = levelsmaster[currentlevel].Segments[current_order].segment_length;
         var g = spawnnewsegement(levelsmaster[currentlevel].Segments[current_order], currentsegmentlength);
        
         orderplus();
@@ -224,23 +244,9 @@ public class EndlessRunner_Levels : MonoBehaviour
 
     private void orderplus ()
     {
+        Debug.Log("Order up");
         current_order++;
-        if (current_order >= levelsmaster[currentlevel].Segments.Count)
-        {
-            current_order = 0;
-            currentsegmentlength = 0;
-      
-        
-            currentlevel++;
-            levelspeed = levelsmaster[startinglevel].speed;
-            speed = levelspeed;
-            if (currentlevel > levelsmaster.Count - 1)
-            {
-                currentlevel = 0;
-               // levelclear = true;
-            }
-            levelname.text = levelsmaster[currentlevel].LevelName;
-        }
+       
        
     }
 
