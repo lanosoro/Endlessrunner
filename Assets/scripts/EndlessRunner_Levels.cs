@@ -13,6 +13,8 @@ public enum level_type
 [System.Serializable]
 public class levelsegment_levels
 {
+    [SerializeField][HideInInspector]
+    string name = "Level Segment";
     [SerializeField]
     public int levelseg=0;
     [SerializeField]
@@ -25,6 +27,9 @@ public class levelsegment_levels
 [System.Serializable]
 public class levels
 {
+    [SerializeField]
+    [HideInInspector]
+    string name = "Level";
     [SerializeField]
     [NonReorderable]
     public List<levelsegment_levels> Segments;
